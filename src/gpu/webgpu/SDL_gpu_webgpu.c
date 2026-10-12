@@ -1274,11 +1274,9 @@ typedef struct WebGPUGraphicsPipeline
 typedef struct WebGPUComputePipeline
 {
     ComputePipelineCommonHeader header;
-    WGPUShaderModule computeShader;
     WGPUComputePipeline pipeline;
 
     WebGPUComputeShaderBindGroupLayouts *bindGroupLayouts;
-
 } WebGPUComputePipeline;
 
 typedef struct WebGPUOffsetBufferBinding
@@ -5196,6 +5194,7 @@ static SDL_GPUComputePipeline *WEBGPU_CreateComputePipeline(SDL_GPURenderer *dev
 
     WGPUShaderModuleDescriptor shaderDesc;
     WGPUShaderSourceWGSL shaderSource;
+    WGPUShaderModule shader;
 
     const char *pipelineDebugName = SDL_GetStringProperty(createInfo->props, SDL_PROP_GPU_COMPUTEPIPELINE_CREATE_NAME_STRING, NULL);
 
@@ -5208,8 +5207,8 @@ static SDL_GPUComputePipeline *WEBGPU_CreateComputePipeline(SDL_GPURenderer *dev
 
     pipeline = SDL_calloc(1, sizeof(*pipeline));
 
-    pipeline->computeShader = wgpuDeviceCreateShaderModule(((WebGPURenderer *)device)->device, &shaderDesc);
-    if (pipeline->computeShader == NULL) {
+    shader = wgpuDeviceCreateShaderModule(((WebGPURenderer *)device)->device, &shaderDesc);
+    if (shader == NULL) {
         SDL_SetError("Failed to compile compute shader!");
         SDL_free(pipeline);
         return NULL;
@@ -5220,7 +5219,7 @@ static SDL_GPUComputePipeline *WEBGPU_CreateComputePipeline(SDL_GPURenderer *dev
     if (pipeline->bindGroupLayouts == NULL) {
         SDL_SetError("Failed to generate bind group layouts for compute shader!");
 
-        wgpuShaderModuleRelease(pipeline->computeShader);
+        wgpuShaderModuleRelease(shader);
         SDL_free(pipeline);
 
         return NULL;
@@ -5240,7 +5239,7 @@ static SDL_GPUComputePipeline *WEBGPU_CreateComputePipeline(SDL_GPURenderer *dev
     pipelineLayout = wgpuDeviceCreatePipelineLayout(((WebGPURenderer *)device)->device, &pipelineLayoutDesc);
     if (pipelineLayout == NULL) {
         SDL_SetError("Failed to create pipeline layout for compute pipeline!");
-        wgpuShaderModuleRelease(pipeline->computeShader);
+        wgpuShaderModuleRelease(shader);
         wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->samplerStorageBindGroupLayout);
         wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->readWriteStorageBindGroupLayout);
         wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->uniformBindGroupLayout);
@@ -5255,7 +5254,7 @@ static SDL_GPUComputePipeline *WEBGPU_CreateComputePipeline(SDL_GPURenderer *dev
         .constantCount = 0,
         .constants = NULL,
         .entryPoint = (WGPUStringView){ createInfo->entrypoint, SDL_strlen(createInfo->entrypoint) },
-        .module = pipeline->computeShader,
+        .module = shader,
         .nextInChain = NULL,
     };
     pipelineDesc.label = pipelineDebugName != NULL ? (WGPUStringView){ pipelineDebugName, SDL_strlen(pipelineDebugName) } : (WGPUStringView){ NULL, 0 };
@@ -5264,11 +5263,11 @@ static SDL_GPUComputePipeline *WEBGPU_CreateComputePipeline(SDL_GPURenderer *dev
 
     pipeline->pipeline = wgpuDeviceCreateComputePipeline(((WebGPURenderer *)device)->device, &pipelineDesc);
 
+    wgpuShaderModuleRelease(shader);
     SDL_free(pipelineLayoutEntries);
 
     if (pipeline->pipeline == NULL) {
         SDL_SetError("Failed to create compute pipeline!");
-        wgpuShaderModuleRelease(pipeline->computeShader);
         wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->samplerStorageBindGroupLayout);
         wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->readWriteStorageBindGroupLayout);
         wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->uniformBindGroupLayout);
@@ -5286,7 +5285,6 @@ static void WEBGPU_ReleaseComputePipeline(SDL_GPURenderer *driverData, SDL_GPUCo
     WebGPUComputePipeline *pipeline = (WebGPUComputePipeline *)computePipeline;
 
     wgpuComputePipelineRelease(pipeline->pipeline);
-    wgpuShaderModuleRelease(pipeline->computeShader);
     wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->readWriteStorageBindGroupLayout);
     wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->samplerStorageBindGroupLayout);
     wgpuBindGroupLayoutRelease(pipeline->bindGroupLayouts->uniformBindGroupLayout);
