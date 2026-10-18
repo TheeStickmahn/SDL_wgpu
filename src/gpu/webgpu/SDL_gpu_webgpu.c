@@ -2584,6 +2584,7 @@ static WebGPUBindGroup *WEBGPU_INTERNAL_CreateBindGroup(WebGPUCommandBuffer *cmd
     case WEBGPU_BINDGROUP_VERTEXUNIFORMS:
     {
         SDL_assert_release(!"Attempting to create vertex uniform bind group! They're currently only pre-generated!");
+        break;
     }
     case WEBGPU_BINDGROUP_FRAGMENTSAMPLERSTORAGE:
     {
@@ -2642,6 +2643,7 @@ static WebGPUBindGroup *WEBGPU_INTERNAL_CreateBindGroup(WebGPUCommandBuffer *cmd
     case WEBGPU_BINDGROUP_FRAGMENTUNIFORMS:
     {
         SDL_assert_release(!"Attempting to create fragment uniform bind group! They're currently only pre-generated!");
+        break;
     }
     case WEBGPU_BINDGROUP_COMPUTESAMPLERSTORAGE:
     {
@@ -2728,6 +2730,7 @@ static WebGPUBindGroup *WEBGPU_INTERNAL_CreateBindGroup(WebGPUCommandBuffer *cmd
     }
     case WEBGPU_BINDGROUP_COMPUTEUNIFORMS:
         SDL_assert_release(!"Attempting to create compute uniform bind group! They're currently only pre-generated!");
+        break;
     }
 
     desc.entries = entries;
