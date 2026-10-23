@@ -4567,8 +4567,8 @@ static void WEBGPU_PushVertexUniformData(SDL_GPUCommandBuffer *commandBuffer, Ui
     }
 
     WebGPUQueuedUniformDataUpload upload = {
-        .data = SDL_malloc(ALIGN_VALUE(length, 256)),
-        .length = ALIGN_VALUE(length, 256),
+        .data = SDL_malloc(length),
+        .length = length,
         .offset = cmdBuf->vertexStageBinds.currentUniformWriteOffsets[slotIndex],
         .slot = slotIndex,
     };
@@ -4593,8 +4593,8 @@ static void WEBGPU_PushFragmentUniformData(SDL_GPUCommandBuffer *commandBuffer, 
     }
 
     WebGPUQueuedUniformDataUpload upload = {
-        .data = SDL_malloc(ALIGN_VALUE(length, 256)),
-        .length = ALIGN_VALUE(length, 256),
+        .data = SDL_malloc(length),
+        .length = length,
         .offset = cmdBuf->fragmentStageBinds.currentUniformWriteOffsets[slotIndex],
         .slot = MAX_UNIFORM_BUFFERS_PER_STAGE + slotIndex,
     };
@@ -4618,8 +4618,8 @@ static void WEBGPU_PushComputeUniformData(SDL_GPUCommandBuffer *commandBuffer, U
     }
 
     WebGPUQueuedUniformDataUpload upload = {
-        .data = SDL_malloc(ALIGN_VALUE(length, 256)),
-        .length = ALIGN_VALUE(length, 256),
+        .data = SDL_malloc(length),
+        .length = length,
         .offset = cmdBuf->computeStageBinds.currentUniformWriteOffsets[slotIndex],
         .slot = (MAX_UNIFORM_BUFFERS_PER_STAGE * 2) + slotIndex,
     };
