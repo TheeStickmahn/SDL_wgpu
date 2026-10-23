@@ -349,17 +349,17 @@ static WGPUTextureFormat SDLToWebGPU_TextureFormat[] = {
 SDL_COMPILE_TIME_ASSERT(SDLToWebGPU_TextureFormat, SDL_arraysize(SDLToWebGPU_TextureFormat) == SDL_GPU_TEXTUREFORMAT_MAX_ENUM_VALUE);
 
 static WGPUTextureFormat SwapchainCompositionToFormat[] = {
-    WGPUTextureFormat_RGBA8Unorm,     // SDR
-    WGPUTextureFormat_RGBA8UnormSrgb, // SDR_LINEAR
+    WGPUTextureFormat_BGRA8Unorm,     // SDR
+    WGPUTextureFormat_BGRA8UnormSrgb, // SDR_LINEAR
     WGPUTextureFormat_RGBA16Float,    // HDR_EXTENDED_LINEAR
-    WGPUTextureFormat_RGB10A2Unorm    // HDR10_ST2084
+    WGPUTextureFormat_RGB10A2Unorm,   // HDR10_ST2084
 };
 
 static WGPUTextureFormat SwapchainCompositionToFallbackFormat[] = {
-    WGPUTextureFormat_BGRA8Unorm,     // SDR
-    WGPUTextureFormat_BGRA8UnormSrgb, // SDR_LINEAR
+    WGPUTextureFormat_RGBA8Unorm,     // SDR
+    WGPUTextureFormat_RGBA8UnormSrgb, // SDR_LINEAR
     WGPUTextureFormat_RGBA16Float,    // HDR_EXTENDED_LINEAR (no fallback)
-    WGPUTextureFormat_RGB10A2Unorm,   // HDR10_ST2084 (no fallback)
+    WGPUTextureFormat_RGB10A2Unorm    // HDR10_ST2084 (no fallback)
 };
 
 static WGPUVertexFormat SDLToWebGPU_VertexFormat[] = {
@@ -3085,6 +3085,22 @@ static bool WEBGPU_ClaimWindow(SDL_GPURenderer *renderer, SDL_Window *window)
     windowData->surfaceDirty = true;
 
     SDL_SetPointerProperty(props, WINDOW_PROPERTY_DATA, windowData);
+
+    // HACK:
+    // We'll verify that the surface supports SDR surface composition.
+    // This is also the only function that checks to see if a fallback format is needed.
+    // TODO: Throw this in the garbage.
+    if (!WEBGPU_SupportsSwapchainComposition(renderer, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR)) {
+        SDL_SetError("Failed to configure surface for SDR!");
+
+        // TODO: Proper clean up.
+        wgpuSurfaceRelease(windowData->surface);
+
+        SDL_SetPointerProperty(props, WINDOW_PROPERTY_DATA, NULL);
+        SDL_free(windowData);
+
+        return false;
+    }
 
     // We'll configure the surface right away since creating a surface doesn't
     // automatically configure it in WebGPU. (I think. Don't quote me on that.)
