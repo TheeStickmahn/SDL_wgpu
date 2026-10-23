@@ -12,6 +12,9 @@
 // FIXME: I'm pretty sure 2D array mipmap generation is broken?
 // FIXME: Uniform buffers are constant and therefore will break if the user pushes more than 1MiB of data
 //        to one within a single command buffer. Why would you ever do that? I have no idea. But it might happen.
+
+#include "SDL_internal.h"
+
 #ifdef SDL_GPU_WEBGPU
 
 #include "../SDL_sysgpu.h"
