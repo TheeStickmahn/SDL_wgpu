@@ -349,17 +349,17 @@ static WGPUTextureFormat SDLToWebGPU_TextureFormat[] = {
 SDL_COMPILE_TIME_ASSERT(SDLToWebGPU_TextureFormat, SDL_arraysize(SDLToWebGPU_TextureFormat) == SDL_GPU_TEXTUREFORMAT_MAX_ENUM_VALUE);
 
 static WGPUTextureFormat SwapchainCompositionToFormat[] = {
-    WGPUTextureFormat_BGRA8Unorm,     // SDR
-    WGPUTextureFormat_BGRA8UnormSrgb, // SDR_LINEAR
-    WGPUTextureFormat_RGBA16Float,    // HDR_EXTENDED_LINEAR
-    WGPUTextureFormat_RGB10A2Unorm,   // HDR10_ST2084
-};
-
-static WGPUTextureFormat SwapchainCompositionToFallbackFormat[] = {
     WGPUTextureFormat_RGBA8Unorm,     // SDR
     WGPUTextureFormat_RGBA8UnormSrgb, // SDR_LINEAR
     WGPUTextureFormat_RGBA16Float,    // HDR_EXTENDED_LINEAR (no fallback)
     WGPUTextureFormat_RGB10A2Unorm    // HDR10_ST2084 (no fallback)
+};
+
+static WGPUTextureFormat SwapchainCompositionToFallbackFormat[] = {
+    WGPUTextureFormat_BGRA8Unorm,     // SDR
+    WGPUTextureFormat_BGRA8UnormSrgb, // SDR_LINEAR
+    WGPUTextureFormat_RGBA16Float,    // HDR_EXTENDED_LINEAR
+    WGPUTextureFormat_RGB10A2Unorm,   // HDR10_ST2084
 };
 
 static WGPUVertexFormat SDLToWebGPU_VertexFormat[] = {
