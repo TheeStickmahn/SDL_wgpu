@@ -3359,7 +3359,17 @@ static void WEBGPU_INTERNAL_EnsureGraphicsPipelineExists(WebGPURenderer *rendere
                 .operation = SDLToWebGPU_BlendOp[targetDesc->blend_state.alpha_blend_op],
             };
 
-            colorTargets[i].blend = &colorTargetBlendStates[i];
+            if (colorTargetBlendStates[i].color.srcFactor != WGPUBlendFactor_Undefined &&
+                colorTargetBlendStates[i].color.srcFactor != WGPUBlendFactor_One &&
+                colorTargetBlendStates[i].color.operation == WGPUBlendOperation_Min) {
+                // HACK: Edge-case in WebGPU.
+                // TODO: We should probably consult the spec to see what other issues like this one occur
+
+                SDL_LogWarn(SDL_LOG_CATEGORY_GPU, "Blend factor must be ONE if blend op is MIN!");
+                colorTargets[i].blend = NULL;
+            } else {
+                colorTargets[i].blend = &colorTargetBlendStates[i];
+            }
         } else {
             colorTargets[i].blend = NULL;
         }
